@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ember & Bean - Artisanal craft roastery & specialty coffee bar. Hand-selected single-origin beans, slow-roasted to perfection.">
+  <title>EMBER & BEAN | Artisanal Coffee & Roastery</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Slide-Over Shopping Cart Drawer & Overlay -->
+  <div id="cart-overlay" class="cart-overlay" aria-hidden="true"></div>
+  <aside id="cart-drawer" class="cart-drawer" aria-label="Shopping Cart" aria-hidden="true">
+    <div class="cart-header">
+      <div class="cart-title-row">
+        <h3 class="cart-title">Your Order</h3>
+        <span id="cart-count-label" class="cart-count-label">(0 items)</span>
+      </div>
+      <button id="cart-close-btn" class="cart-close-btn" aria-label="Close Shopping Cart">&times;</button>
+    </div>
+
+    <div class="cart-body" id="cart-body">
+      <!-- Populated dynamically via JS: Empty state or items list -->
+    </div>
+
+    <div class="cart-footer" id="cart-footer">
+      <div class="cart-totals">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal" class="total-amount">$0.00</span>
+        </div>
+        <div class="total-row tax-row">
+          <span>Estimated Tax (8%)</span>
+          <span id="cart-tax" class="total-amount">$0.00</span>
+        </div>
+        <div class="total-row pickup-row">
+          <span>Pickup Order</span>
+          <span class="pickup-free-badge">FREE</span>
+        </div>
+        <div class="total-divider"></div>
+        <div class="total-row grand-total-row">
+          <strong>Total</strong>
+          <strong id="cart-grand-total" class="grand-total-amount">$0.00</strong>
+        </div>
+      </div>
+      <button id="checkout-btn" class="btn btn-primary btn-block checkout-btn">
+        <span class="checkout-btn-text">Proceed to Checkout</span>
+        <span id="checkout-btn-total" class="checkout-btn-price">&bull; $0.00</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Header / Navigation -->
+  <header class="site-header" id="site-header">
+    <div class="container header-container">
+      <a href="#home" class="brand-logo" aria-label="Ember and Bean Home">
+        <span class="logo-ember">EMBER</span>
+        <span class="logo-divider">&amp;</span>
+        <span class="logo-bean">BEAN</span>
+        <span class="logo-dot"></span>
+      </a>
+
+      <!-- Desktop & Mobile Nav -->
+      <nav class="nav-menu" id="nav-menu" aria-label="Main Navigation">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#home" class="nav-link active">Home</a></li>
+          <li class="nav-item"><a href="#menu" class="nav-link">Menu</a></li>
+          <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+          <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-cta-wrapper mobile-only-cta">
+          <a href="#menu" class="btn btn-primary btn-sm nav-cta">Order Ahead</a>
+        </div>
+      </nav>
+
+      <!-- Header Actions: Theme Toggle, Cart Button, Desktop CTA & Hamburger -->
+      <div class="header-actions">
+        <!-- Dark / Light Theme Toggle Button -->
+        <button id="theme-toggle" class="header-icon-btn theme-toggle" aria-label="Switch to dark theme" title="Toggle theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+
+        <!-- Shopping Cart Trigger Button -->
+        <button id="cart-toggle-btn" class="header-icon-btn cart-toggle-btn" aria-label="View shopping cart" aria-expanded="false" aria-controls="cart-drawer">
+          <svg class="cart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <span id="cart-badge" class="cart-badge" aria-label="0 items in cart">0</span>
+        </button>
+
+        <a href="#menu" class="btn btn-primary btn-sm desktop-cta">Order Ahead</a>
+
+        <!-- Hamburger Button -->
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle Navigation Menu" aria-expanded="false" aria-controls="nav-menu">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+      <div class="container hero-container">
+        <div class="hero-content">
+          <div class="badge-pill">
+            <span class="badge-dot"></span> Craft Roastery &amp; Espresso Bar
+          </div>
+          <h1 class="hero-title">
+            Pouring Passion, <br>
+            <span class="text-gradient">Roasted with Fire.</span>
+          </h1>
+          <p class="hero-description">
+            Experience nuanced single-origins and velvety house roasts crafted by passionate baristas. Every cup is roasted in small batches for distinct character and uncompromised taste.
+          </p>
+          <div class="hero-actions">
+            <a href="#menu" class="btn btn-primary">Explore Our Menu</a>
+            <a href="#about" class="btn btn-outline">Our Philosophy</a>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div class="hero-features">
+            <div class="feature-item">
+              <span class="feature-number">100%</span>
+              <span class="feature-label">Ethical Arabica</span>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item">
+              <span class="feature-number">48 Hr</span>
+              <span class="feature-label">Freshness Roast Window</span>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item">
+              <span class="feature-number">14+</span>
+              <span class="feature-label">Single Origin Farms</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-image-card">
+            <img 
+              src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80" 
+              alt="Artisanal pour over coffee and latte on a rustic wooden cafe table"
+              class="hero-img"
+              loading="eager"
+            >
+            <div class="hero-floating-card">
+              <div class="floating-icon">☕</div>
+              <div class="floating-info">
+                <span class="floating-title">Roaster’s Choice</span>
+                <span class="floating-sub">Ethiopian Yirgacheffe • Bergamot &amp; Honey</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu-section section-padding">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-tag">Handcrafted Offerings</span>
+          <h2 class="section-title">Brewed with Precision</h2>
+          <p class="section-subtitle">
+            From smooth double-shot espresso beverages to slow Kyoto cold drips and freshly baked morning pastries.
+          </p>
+
+          <!-- Menu Search & Filter Controls -->
+          <div class="menu-controls">
+            <div class="menu-search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input 
+                type="search" 
+                id="menu-search-input" 
+                class="menu-search-input" 
+                placeholder="Search coffee, roasts, pastries..." 
+                aria-label="Search menu items"
+                autocomplete="off"
+              >
+              <button type="button" id="search-clear-btn" class="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
+            </div>
+
+            <!-- Menu Filter Tabs -->
+            <div class="menu-filters" role="tablist" aria-label="Menu Categories">
+              <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All Items</button>
+              <button class="filter-btn" data-filter="hot" role="tab" aria-selected="false">Hot Brews</button>
+              <button class="filter-btn" data-filter="cold" role="tab" aria-selected="false">Cold Brews</button>
+              <button class="filter-btn" data-filter="tea" role="tab" aria-selected="false">Specialty &amp; Tea</button>
+              <button class="filter-btn" data-filter="bakery" role="tab" aria-selected="false">Bakery</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu Cards Grid -->
+        <div class="menu-grid" id="menu-grid">
+          <!-- Card 1 -->
+          <article class="menu-card" data-category="hot" data-id="ember-flat-white">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=800&q=80" 
+                alt="Ember Signature Flat White served with latte art" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Signature</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Ember Flat White</h3>
+                <span class="card-price">$4.75</span>
+              </div>
+              <p class="card-desc">Ristretto shots of our signature dark amber roast blended with micro-foamed whole oat milk.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Rich Crema</span>
+                <span class="meta-tag">Oat / Whole</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="ember-flat-white" 
+                  data-name="Ember Flat White" 
+                  data-price="4.75" 
+                  data-img="https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Ember Flat White to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="menu-card" data-category="hot" data-id="smoked-spanish-latte">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=800&q=80" 
+                alt="Smoked Cinnamon Spanish Latte" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Guest Favorite</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Smoked Spanish Latte</h3>
+                <span class="card-price">$5.40</span>
+              </div>
+              <p class="card-desc">Infused with condensed sweet milk, crushed cinnamon bark, and a light smoked sea salt finish.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Velvety</span>
+                <span class="meta-tag">Warm Spice</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="smoked-spanish-latte" 
+                  data-name="Smoked Spanish Latte" 
+                  data-price="5.40" 
+                  data-img="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Smoked Spanish Latte to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="menu-card" data-category="cold" data-id="kyoto-slow-drip">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=800&q=80" 
+                alt="Kyoto 16-Hour Cold Drip Coffee" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Slow Drip</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Kyoto Slow Drip</h3>
+                <span class="card-price">$5.85</span>
+              </div>
+              <p class="card-desc">Brewed drop-by-drop over 16 hours. Clean, low acidity with notes of dark cacao and dried cherry.</p>
+              <div class="card-meta">
+                <span class="meta-tag">16hr Brew</span>
+                <span class="meta-tag">Crisp &amp; Bold</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="kyoto-slow-drip" 
+                  data-name="Kyoto Slow Drip" 
+                  data-price="5.85" 
+                  data-img="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Kyoto Slow Drip to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="menu-card" data-category="cold" data-id="nitro-vanilla-silk">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=800&q=80" 
+                alt="Nitro Vanilla Cold Brew" 
+                class="card-img"
+                loading="lazy"
+              >
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Nitro Vanilla Silk</h3>
+                <span class="card-price">$5.60</span>
+              </div>
+              <p class="card-desc">Nitrogen-infused cold brew cascading with a stout-like creamy head, Madagascar vanilla, and roasted hazelnut.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Nitro Foam</span>
+                <span class="meta-tag">Dairy Free</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="nitro-vanilla-silk" 
+                  data-name="Nitro Vanilla Silk" 
+                  data-price="5.60" 
+                  data-img="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Nitro Vanilla Silk to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5 -->
+          <article class="menu-card" data-category="hot" data-id="chemex-single-origin">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" 
+                alt="Chemex Single Origin Pour Over" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Single Origin</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Chemex Single-Origin</h3>
+                <span class="card-price">$6.00</span>
+              </div>
+              <p class="card-desc">Hand-poured pour-over highlighting rotating micro-lots with vibrant floral and stone fruit notes.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Micro-Lot</span>
+                <span class="meta-tag">Pour-Over</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="chemex-single-origin" 
+                  data-name="Chemex Single-Origin" 
+                  data-price="6.00" 
+                  data-img="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Chemex Single-Origin to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 6 -->
+          <article class="menu-card" data-category="tea" data-id="uji-matcha-cloud">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=800&q=80" 
+                alt="Ceremonial Uji Matcha Cloud Latte" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Japanese Origin</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Uji Matcha Cloud</h3>
+                <span class="card-price">$5.75</span>
+              </div>
+              <p class="card-desc">Ceremonial grade green tea whisked traditionally, layered over steamed vanilla oat milk and sweet foam.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Antioxidant</span>
+                <span class="meta-tag">Low Sugar</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="uji-matcha-cloud" 
+                  data-name="Uji Matcha Cloud" 
+                  data-price="5.75" 
+                  data-img="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Uji Matcha Cloud to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 7 -->
+          <article class="menu-card" data-category="bakery" data-id="golden-butter-croissant">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80" 
+                alt="Flaky Butter Croissant fresh from oven" 
+                class="card-img"
+                loading="lazy"
+              >
+              <span class="card-badge">Baked Daily</span>
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Golden Butter Croissant</h3>
+                <span class="card-price">$4.25</span>
+              </div>
+              <p class="card-desc">Folded with 72 layers of pure French cultured butter. Flaky exterior with an airy, honeycomb interior.</p>
+              <div class="card-meta">
+                <span class="meta-tag">Warm &amp; Flaky</span>
+                <span class="meta-tag">Cultured Butter</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="golden-butter-croissant" 
+                  data-name="Golden Butter Croissant" 
+                  data-price="4.25" 
+                  data-img="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Golden Butter Croissant to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 8 -->
+          <article class="menu-card" data-category="bakery" data-id="cardamom-berry-brioche">
+            <div class="card-image-wrap">
+              <img 
+                src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80" 
+                alt="Artisanal Cardamom & Wild Berry Brioche" 
+                class="card-img"
+                loading="lazy"
+              >
+            </div>
+            <div class="card-body">
+              <div class="card-header-row">
+                <h3 class="card-title">Cardamom Berry Brioche</h3>
+                <span class="card-price">$4.95</span>
+              </div>
+              <p class="card-desc">Soft Scandinavian brioche infused with freshly ground cardamom, filled with tart wild berry compote.</p>
+              <div class="card-meta">
+                <span class="meta-tag">House Preserve</span>
+                <span class="meta-tag">Vegetarian</span>
+              </div>
+              <div class="card-action-row">
+                <button class="add-to-cart-btn" 
+                  data-id="cardamom-berry-brioche" 
+                  data-name="Cardamom Berry Brioche" 
+                  data-price="4.95" 
+                  data-img="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80" 
+                  aria-label="Add Cardamom Berry Brioche to order">
+                  <span class="add-icon">+</span>
+                  <span class="add-text">Add to Order</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Empty Search Results State -->
+        <div id="menu-no-results" class="menu-no-results" style="display: none;">
+          <div class="no-results-icon">☕</div>
+          <h3 class="no-results-title">No Brews Found</h3>
+          <p class="no-results-text">We couldn't find anything matching your search. Try another keyword or reset the filter.</p>
+          <button id="reset-search-btn" class="btn btn-outline btn-sm">Reset Search</button>
+        </div>
+
+        <div class="menu-footer text-center">
+          <p class="menu-notice">Looking for decaf or dairy-free? We offer Swiss Water® Decaf and house-made almond, oat, and coconut milks at no extra charge.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section section-padding">
+      <div class="container about-container">
+        <div class="about-images">
+          <div class="about-img-main-wrap">
+            <img 
+              src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=80" 
+              alt="Freshly roasted specialty coffee beans being examined" 
+              class="about-img about-img-main"
+              loading="lazy"
+            >
+          </div>
+          <div class="about-img-sub-wrap">
+            <img 
+              src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80" 
+              alt="Barista precisely crafting a pour over coffee" 
+              class="about-img about-img-sub"
+              loading="lazy"
+            >
+            <div class="experience-badge">
+              <span class="exp-number">Est.</span>
+              <span class="exp-text">2019</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-content">
+          <span class="section-tag">Our Roots &amp; Craft</span>
+          <h2 class="section-title">Honoring Every Bean From Soil to Cup</h2>
+          <p class="lead-text">
+            EMBER &amp; BEAN was founded on a simple belief: coffee isn’t just fuel for the day—it’s an intentional ritual that bridges human connection and craftsmanship.
+          </p>
+          <p class="about-text">
+            We partner directly with regenerative farming co-ops in Huila, Yirgacheffe, and Antigua. By cutting out brokers and paying up to 140% above fair-trade commodity rates, we ensure farmers thrive while we roast only the top 3% of harvested beans.
+          </p>
+
+          <!-- Core Values List -->
+          <div class="values-list">
+            <div class="value-item">
+              <div class="value-icon">🔥</div>
+              <div class="value-details">
+                <h4 class="value-title">Precision Drum Roasting</h4>
+                <p class="value-desc">Custom cast-iron profiles dialed in for sweetness, vibrant florals, and zero charred bitterness.</p>
+              </div>
+            </div>
+            <div class="value-item">
+              <div class="value-icon">🌱</div>
+              <div class="value-details">
+                <h4 class="value-title">Direct Trade Sourcing</h4>
+                <p class="value-desc">Transparent supply chains supporting female-led farms and soil biodiversity.</p>
+              </div>
+            </div>
+            <div class="value-item">
+              <div class="value-icon">🤝</div>
+              <div class="value-details">
+                <h4 class="value-title">Neighborhood Hospitality</h4>
+                <p class="value-desc">A calm, sunlit space designed for meaningful conversations, focus, and slow mornings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact & Visit Section -->
+    <section id="contact" class="contact-section section-padding">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-tag">Find Your Sanctuary</span>
+          <h2 class="section-title">Visit Our Roastery &amp; Cafe</h2>
+          <p class="section-subtitle">
+            Have a question about our roasts, private bookings, or wholesale beans? Send us a message or walk right in.
+          </p>
+        </div>
+
+        <div class="contact-layout">
+          <!-- Information Column -->
+          <div class="contact-info-card">
+            <h3 class="info-card-title">Roastery Information</h3>
+            <p class="info-card-subtitle">Drop by for your morning brew or sit down with a book in our courtyard.</p>
+
+            <ul class="info-list">
+              <li class="info-item">
+                <div class="info-icon">📍</div>
+                <div class="info-text">
+                  <strong>Location</strong>
+                  <span>742 Emberwood Lane, Downtown Arts Quarter</span>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon">🕒</div>
+                <div class="info-text">
+                  <strong>Hours of Operation</strong>
+                  <span>Monday – Friday: 6:30 AM – 6:30 PM</span>
+                  <span>Saturday – Sunday: 7:30 AM – 7:30 PM</span>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon">📞</div>
+                <div class="info-text">
+                  <strong>Phone</strong>
+                  <a href="tel:+15553623723">(555) 362-3723</a>
+                </div>
+              </li>
+              <li class="info-item">
+                <div class="info-icon">✉️</div>
+                <div class="info-text">
+                  <strong>Email</strong>
+                  <a href="mailto:hello@emberandbean.coffee">hello@emberandbean.coffee</a>
+                </div>
+              </li>
+            </ul>
+
+            <div class="cafe-perks">
+              <span class="perk-badge">⚡ Ultra-fast Wi-Fi</span>
+              <span class="perk-badge">🐾 Pet Friendly Patio</span>
+              <span class="perk-badge">🚲 Bike Parking</span>
+            </div>
+          </div>
+
+          <!-- Working Contact Form -->
+          <div class="contact-form-card">
+            <h3 class="form-title">Send a Message</h3>
+            <p class="form-sub">We reply within 24 hours during business days.</p>
+
+            <form id="contact-form" class="contact-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contact-name">Your Full Name <span class="required-star">*</span></label>
+                  <input 
+                    type="text" 
+                    id="contact-name" 
+                    name="name" 
+                    class="form-control" 
+                    placeholder="e.g. Sarah Jenkins"
+                    required
+                    autocomplete="name"
+                  >
+                  <span class="error-msg" id="name-error">Please enter your name.</span>
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-email">Email Address <span class="required-star">*</span></label>
+                  <input 
+                    type="email" 
+                    id="contact-email" 
+                    name="email" 
+                    class="form-control" 
+                    placeholder="e.g. sarah@example.com"
+                    required
+                    autocomplete="email"
+                  >
+                  <span class="error-msg" id="email-error">Please provide a valid email address.</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="contact-subject">Inquiry Type</label>
+                <select id="contact-subject" name="subject" class="form-control">
+                  <option value="general">General Coffee &amp; Cafe Questions</option>
+                  <option value="catering">Private Event / Coffee Cart Catering</option>
+                  <option value="wholesale">Wholesale &amp; Retail Bean Sourcing</option>
+                  <option value="careers">Careers &amp; Barista Apprenticeship</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="contact-message">Your Message <span class="required-star">*</span></label>
+                <textarea 
+                  id="contact-message" 
+                  name="message" 
+                  rows="4" 
+                  class="form-control" 
+                  placeholder="Tell us what's on your mind..."
+                  required
+                ></textarea>
+                <span class="error-msg" id="message-error">Please include a message (at least 10 characters).</span>
+              </div>
+
+              <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+                <span class="btn-text">Send Message</span>
+                <span class="btn-spinner" aria-hidden="true"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <a href="#home" class="brand-logo footer-logo">
+          <span class="logo-ember">EMBER</span>
+          <span class="logo-divider">&amp;</span>
+          <span class="logo-bean">BEAN</span>
+        </a>
+        <p class="footer-tagline">
+          Crafting memorable coffee moments with fire, care, and community since 2019.
+        </p>
+        <div class="social-links" aria-label="Social Media Links">
+          <a href="#" class="social-link" aria-label="Instagram">IG</a>
+          <a href="#" class="social-link" aria-label="TikTok">TT</a>
+          <a href="#" class="social-link" aria-label="Facebook">FB</a>
+          <a href="#" class="social-link" aria-label="YouTube">YT</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Quick Links</h4>
+        <ul class="footer-nav">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#menu">Menu &amp; Roasts</a></li>
+          <li><a href="#about">Our Story</a></li>
+          <li><a href="#contact">Location &amp; Hours</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Specialty</h4>
+        <ul class="footer-nav">
+          <li><a href="#menu">Single Origin Filter</a></li>
+          <li><a href="#menu">Cold Drip Extraction</a></li>
+          <li><a href="#menu">Artisanal Bakery</a></li>
+          <li><a href="#contact">Wholesale Partnerships</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Stay Connected</h4>
+        <p class="footer-sub-text">Join our weekly roasting dispatch for new bean drops and brewing guides.</p>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Ember & Bean dispatch!'); this.reset();">
+          <input type="email" placeholder="Your email address" required aria-label="Newsletter Email">
+          <button type="submit" class="btn btn-primary btn-sm">Join</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container footer-bottom-container">
+        <p>&copy; <span id="current-year">2026</span> EMBER &amp; BEAN Coffee Roasters. All rights reserved.</p>
+        <p class="footer-credits">Pure HTML • CSS • JavaScript</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
